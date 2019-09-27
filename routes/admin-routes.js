@@ -9,6 +9,7 @@ const Teacher = require('../models/teachers')
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
 
+//gets routes starts from here---------
 router.get('/',(req,res)=> {
     res.status(200).json('This is the admins page')
 }) 
@@ -56,15 +57,42 @@ router.post('/addinstitute' , (req,res)=> {
      .catch((err)=> res.status(400).json(err))
 })
 
-
+//////////delete requests//////////
 router.delete('/:id' , (req,res) => {
-  Institute.remove({
+  Institute.deleteOne({
     _id:req.params.id
   })
   .then(() => {
     res.redirect('/')
   })
+  .catch((err)=> {
+          res.status(400).json(err)
+  })
 })
+
+
+//edit institute route
+router.put('/:id' , (req,res)=> {
+    Institute.findOne({
+        _id: req.params.id
+      })
+      .then(institute=> {
+        institute.instituteName= req.body.instituteName,
+        institute.instituteType= req.body.instituteType,
+        institute.institute_id= req.body.institute_id,
+        institute.email=req.body.email,
+        institute.phone=req.body.phone,
+        institute.dateTime=Date.now()
+        institute.save()
+        .then(institute=> {
+            console.log(institute)
+            res.status(200).json(institute)
+        })
+      })
+      .catch(err=> res.status(400).json(err))
+      .catch(err=> res.status(400).json(err))
+})
+
 
 
 module.exports = router
