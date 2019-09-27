@@ -5,6 +5,7 @@ const Course = require('../models/courses')
 const Institute = require('../models/institute')
 const Student = require('../models/students')
 const Teacher = require('../models/teachers')
+const Parent = require('../models/parent')
 
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
@@ -22,21 +23,35 @@ router.get('/institutes',(req,res)=> {
     })
 })
 
-router.get('/students' , (req,res)=> {
-    Student.find().then((students)=> {
-        res.status(200).json(students)
-    }).catch((err)=> {
-         res.status(400).json(err)
-    })
+router.get('/institute/:institute_id/students' , (req,res)=> {
+      Student.find({institute_id:req.params.institute_id})
+      .then(students=> res.status(200).json(students))
+      .catch(err=> res.status(400).json(err))
 })
 
-router.get('/teachers' , (req,res)=> {
-       Teacher.find().then((teachers)=> {
-        res.status(200).json(teachers)
-    }).catch((err)=> {
-         res.status(400).json(err)
-    })
+
+
+router.get('/institute/:institute_id/courses' , (req,res)=> {
+    Course.find({institute_id:req.params.institute_id})
+    .then(courses=> res.status(200).json(courses))
+    .catch(err=> res.status(400).json(err))
 })
+
+
+
+router.get('/institute/:institute_id/teachers' , (req,res)=> {
+    Teacher.find({institute_id:req.params.institute_id})
+    .then(teachers=> res.status(200).json(teachers))
+    .catch(err=> res.status(400).json(err))
+})
+
+
+router.get('/institute/:institute_id/parents' , (req,res)=> {
+    Parent.find({institute_id:req.params.institute_id})
+    .then(parents=> res.status(200).json(parents))
+    .catch(err=> res.status(400).json(err))
+})
+
 
 //post methods starts from here=------------
 
