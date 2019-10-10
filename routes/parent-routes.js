@@ -9,7 +9,7 @@ router.use(bodyParser.json())
 
 
 router.get('/',(req,res)=> {
-    res.status(200).json('This is the admins page')
+    res.status(200).json('This is the parent page')
 }) 
 
 
