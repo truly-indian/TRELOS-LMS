@@ -7,29 +7,98 @@ const Student = require('../models/students')
 const Teacher = require('../models/teachers')
 const Parent = require('../models/parent')
 const Event = require('../models/event')
+const Admin = require('../models/admins')
+const jwt = require('jsonwebtoken')
+const jwtSecret = require('../config/jwtkey');
+const localStorage = require('../utlis/localstorage')
+const verifyToken = require('../utlis/verifyToken')
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
+
+
+require("dotenv").config();
+///-------------authenticating the admin--------------------//
+router.post('/adminsignup', (req,res) => {
+          Admin.findOne({username:req.body.username})
+          .then((admin) => {
+            console.log(req.body) 
+                if(admin){
+                   
+                    return res.status(501).json({message:'admin already exists'})
+                }
+               
+                const newAdmin = {
+                    username:req.body.username,
+                    password:req.body.password
+                }
+              
+                new Admin(newAdmin).save()
+                .then((admin) => {
+                    
+                    console.log(admin)
+                   res.status(200).json(admin)
+                })
+                .catch((err) => {
+                    res.status(400).json(err)
+                })
+          })
+          .catch((err) => {
+                res.status(400).json(err)
+          })
+})
+
+//logging the admin in-------------//
+router.post('/login' , (req,res,next) => {
+        Admin.findOne({username:req.body.username})
+        .then((admin) => {
+                if(admin.length < 1 || admin == 'undefined') {
+                    return res.status(401).json({message:'Auth failed!!'})
+                }
+                if(admin.password === req.body.password){
+                   
+                jwt.sign({id:admin._id},jwtSecret.jwtKey,(err,token) => {
+                    console.log(token);
+                    localStorage.setItem('auth-token',token);
+                    res.status(200).json({...admin._doc,token});
+                })  
+                    
+                }
+                else {
+                    return res.status(401).json({meassage:'Auth Failed!'})
+                }
+        })
+        .catch((err) => {
+               res.status(400).json(err)
+        })
+})
 
 //get routes starts from here---------
 router.get('/',(req,res)=> {
     res.status(200).json('This is the admins page')
 }) 
-
-router.get('/institutes',(req,res)=> {
-    Institute.find().then((institutes)=>{
-        res.status(200).json(institutes)
-    }).catch((err)=> {
-        res.status(400).json(err)
-    })
+//get all institute routes
+router.get('/institutes',verifyToken,(req,res)=> {
+     const authData = req.authData
+     console.log(authData)
+     if(authData){
+        Institute.find().then((institutes)=>{
+            res.status(200).json(institutes)
+        }).catch((err)=> {
+            res.status(400).json(err)
+        })
+     }else {
+         res.status(400).json({message:'not authorized!!'})
+     }
+   
 })
-
+//get institute student route
 router.get('/institute/:institute_id/students' , (req,res)=> {
       Student.find({institute_id:req.params.institute_id})
       .then(students=> res.status(200).json(students))
       .catch(err=> res.status(400).json(err))
 })
 
-
+//get institute courses route
 
 router.get('/institute/:institute_id/courses' , (req,res)=> {
     Course.find({institute_id:req.params.institute_id})
@@ -38,20 +107,40 @@ router.get('/institute/:institute_id/courses' , (req,res)=> {
 })
 
 
-
+//get institute teacher route
 router.get('/institute/:institute_id/teachers' , (req,res)=> {
     Teacher.find({institute_id:req.params.institute_id})
-    .then(teachers=> res.status(200).json(teachers))
+    .then(teachers=> {
+        console.log(teachers)
+        if(teachers.length > 0) {
+            res.status(200).json(teachers)
+        }
+        else {
+            res.status(404).json({message:'not found'})
+        }
+       
+    })
     .catch(err=> res.status(400).json(err))
 })
 
-
+//get institute parents route
 router.get('/institute/:institute_id/parents' , (req,res)=> {
     Parent.find({institute_id:req.params.institute_id})
     .then(parents=> res.status(200).json(parents))
     .catch(err=> res.status(400).json(err))
 })
 
+// get institute circular route
+
+router.get('/institute/:institute_id/circulars' , (req,res) => {
+    Circular.find({_id:req.params.institute_id})
+    .then((circulars) => {
+          res.status(200).json(circulars)
+    })
+    .catch((err) => {
+       res.status(404).json({message:'not found'})
+    })
+ })
 
 //post methods starts from here=------------
 //-----------------add institute------------------//
@@ -117,7 +206,7 @@ router.post('/addteacher' , (req,res) => {
         console.log(req.body)
         const newTeacher = {
          user_id:req.body.user_id,
-         teacher_id:req.body.student_id,
+         teacher_id:req.body.teacher_id,
          institute_id:req.body.institute_id,
          name:req.body.name,
          phone:req.body.phone,
@@ -258,7 +347,7 @@ router.put('/:teacherid' , (req,res) => {
       Teacher.findOne({_id:req.params.teacherid})
       .then((teacher) => {
         teacher.user_id=req.body.user_id,
-        teacher.teacher_id=req.body.student_id,
+        teacher.teacher_id=req.body.teacher_id,
         teacher.institute_id=req.body.institute_id,
         teacher.name=req.body.name,
         teacher.phone=req.body.phone,
@@ -341,19 +430,82 @@ router.put('/:circularid' , (req,res) => {
              res.status(404).json(err)
       })
 })
+//all the delte routes starts from here====//
 
 //-----------delete institute------------------//
-router.delete('/:id' , (req,res) => {
+router.delete('/:instituteid' , (req,res) => {
     Institute.deleteOne({
-      _id:req.params.id
+      _id:req.params.instituteid
     })
     .then(() => {
-      res.redirect('/')
+      res.status(200).json({message:'deleted sucessfully!!'})
     })
     .catch((err)=> {
             res.status(400).json(err)
     })
   })
   
+ //--------delete courses--------------//
+ router.delete('/:courseid' , () => {
+       Course.remove({_id:req.params.courseid})
+       .then(() => {
+           res.status(200).json({message:"deleted sucessfully!!"})
+       })
+       .catch((err) => {
+           res.status(400).json(err)
+       })
+}) 
+//---------delete student route-----------//
+router.delete('/:studentid' , () => {
+    Student.remove({_id:req.params.student})
+    .then(() => {
+        res.status(200).json({message:"deleted sucessfully!!"})
+    })
+    .catch((err) => {
+        res.status(400).json(err)
+    })
+}) 
 
+//--------------delete teacher route--------------//
+router.delete('/:teacherid' , () => {
+    Teacher.remove({_id:req.params.teacherid})
+    .then(() => {
+        res.status(200).json({message:"deleted sucessfully!!"})
+    })
+    .catch((err) => {
+        res.status(400).json(err)
+    })
+}) 
+
+//-------------------delete parent route ----------//
+router.delete('/:parentid' , () => {
+    Parent.remove({_id:req.params.parentid})
+    .then(() => {
+        res.status(200).json({message:"deleted sucessfully!!"})
+    })
+    .catch((err) => {
+        res.status(400).json(err)
+    })
+}) 
+//---------------------delete event route -----------------------//
+router.delete('/:eventid' , () => {
+    Event.remove({_id:req.params.eventid})
+    .then(() => {
+        res.status(200).json({message:"deleted sucessfully!!"})
+    })
+    .catch((err) => {
+        res.status(400).json(err)
+    })
+}) 
+
+//--------------------delete circular route --------------------//
+router.delete('/:circularid' , () => {
+    Circular.remove({_id:req.params.circularid})
+    .then(() => {
+        res.status(200).json({message:"deleted sucessfully!!"})
+    })
+    .catch((err) => {
+        res.status(400).json(err)
+    })
+}) 
 module.exports = router

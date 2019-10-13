@@ -9,6 +9,7 @@ const parentRoutes = require('./routes/parent-routes')
 const exphbs = require('express-handlebars')
 const path = require('path')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const app = express()
 
@@ -16,7 +17,7 @@ mongoose.connect(keys.mongodb.dbURI,{ useUnifiedTopology: true,useNewUrlParser: 
 
 const SERVER_PORT = process.env.PORT || 3000
 app.use(express.static(path.join(__dirname , 'public')))
-
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 
 app.engine('handlebars' , exphbs({
