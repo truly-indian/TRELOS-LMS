@@ -9,7 +9,7 @@ const circularSchema = new Schema({
        type:String
    },
    title:{
-       type:Number
+       type:String
    },
    text:{
        type:String

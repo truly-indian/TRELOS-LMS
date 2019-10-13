@@ -78,18 +78,16 @@ router.get('/',(req,res)=> {
     res.status(200).json('This is the admins page')
 }) 
 //get all institute routes
-router.get('/institutes',verifyToken,(req,res)=> {
-     const authData = req.authData
-     console.log(authData)
-     if(authData){
+router.get('/institutes',(req,res)=> {
+    // const authData = req.authData
+    // console.log(authData)
+     
         Institute.find().then((institutes)=>{
             res.status(200).json(institutes)
         }).catch((err)=> {
             res.status(400).json(err)
         })
-     }else {
-         res.status(400).json({message:'not authorized!!'})
-     }
+     
    
 })
 //get institute student route

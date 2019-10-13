@@ -17,16 +17,16 @@ router.get('/',(req,res)=> {
     res.status(200).json('This is the institute page')
 }) 
 
-router.get('/students' , (req,res)=> {
-    Student.find().then((students)=> {
+router.get('/students/:institute_id' , (req,res)=> {
+    Student.find({institute_id:req.params.institute_id}).then((students)=> {
         res.status(200).json(students)
     }).catch((err)=> {
          res.status(400).json(err)
     })
 })
 
-router.get('/teachers' , (req,res)=> {
-       Teacher.find().then((teachers)=> {
+router.get('/teachers/:institute_id' , (req,res)=> {
+       Teacher.find({institute_id:req.params.institute_id}).then((teachers)=> {
         res.status(200).json(teachers)
     }).catch((err)=> {
          res.status(400).json(err)
