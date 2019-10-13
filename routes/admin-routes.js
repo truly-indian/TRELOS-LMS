@@ -132,7 +132,7 @@ router.get('/institute/:institute_id/parents' , (req,res)=> {
 // get institute circular route
 
 router.get('/institute/:institute_id/circulars' , (req,res) => {
-    Circular.find({_id:req.params.institute_id})
+    Circular.find({institute_id:req.params.institute_id})
     .then((circulars) => {
           res.status(200).json(circulars)
     })
