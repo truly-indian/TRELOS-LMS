@@ -8,6 +8,7 @@ const Teacher = require('../models/teachers')
 const Parent = require('../models/parent')
 const Event = require('../models/event')
 const Admin = require('../models/admins')
+const Circular = require('../models/circular')
 const jwt = require('jsonwebtoken')
 const jwtSecret = require('../config/jwtkey');
 const localStorage = require('../utlis/localstorage')
