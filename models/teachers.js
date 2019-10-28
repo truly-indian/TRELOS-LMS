@@ -9,7 +9,7 @@ const teacherSchema = new Schema({
        type:String
    },
    teacher_id:{
-       type:Number
+       type:String
    },
    institute_id:{
        type:String

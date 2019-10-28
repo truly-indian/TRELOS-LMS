@@ -30,7 +30,7 @@ const testSchema = new Schema({
     },
     time:{
       type:Number 
-    },
+    }, 
     description:{
         type:String
     },

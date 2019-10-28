@@ -266,7 +266,8 @@ router.post('/addcircular' , (req,res) => {
     startDate:req.body.startDate,
     endDate:req.body.endDate,
     chapterDescription:req.body.desc,
-    color:req.body.color
+    color:req.body.color,
+    circular_id:req.body.circular_id
 }
 new Circular(newCircular).save().then((newcircular)=> {
     res.status(200).json(newcircular)
@@ -277,7 +278,7 @@ new Circular(newCircular).save().then((newcircular)=> {
 //-------------edit institute route-----------------//
 router.put('/:instituteid' , (req,res)=> {
     Institute.findOne({
-        _id: req.params.instituteid
+        institute_id: req.params.instituteid
       })
       .then(institute=> {
         institute.instituteName= req.body.instituteName,
@@ -297,7 +298,7 @@ router.put('/:instituteid' , (req,res)=> {
 })
 //-----------------edit ocurse route-----------------//
 router.put('/:courseid' , (req,res)=> {
-       Course.findOne({_id:req.params.courseid})
+       Course.findOne({course_id:req.params.courseid})
        .then((course) => {
         course.course_id= req.body.course_id,
         course.institute_id = req.body.institute_id,
@@ -318,7 +319,7 @@ router.put('/:courseid' , (req,res)=> {
 
 //edit route for student--------------//
 router.put('/:studentid' , (req,res)=> {
-        Student.findOne({_id:req.params.studentid})
+        Student.findOne({student_id:req.params.studentid})
         .then((student) => {
             student.user_id =req.body.user_id,
             student.student_id=req.body.student_id,
@@ -343,7 +344,7 @@ router.put('/:studentid' , (req,res)=> {
 })
 //edit route for teacher--------------//
 router.put('/:teacherid' , (req,res) => {
-      Teacher.findOne({_id:req.params.teacherid})
+      Teacher.findOne({teacher_id:req.params.teacherid})
       .then((teacher) => {
         teacher.user_id=req.body.user_id,
         teacher.teacher_id=req.body.teacher_id,
@@ -367,7 +368,7 @@ router.put('/:teacherid' , (req,res) => {
 
 //edit route for parent---------//
 router.put('/:parentid' , (req,res) => {
-     Parent.findOne({_id:req.params.id})
+     Parent.findOne({parent_id:req.params.parentid})
      .then((parent) => {
         parent.user_id=req.body.user_id,
         parent.parent_id=req.body.parent_id,
@@ -412,7 +413,7 @@ router.put('/:eventid' , (req,res)=> {
 
 //edit route for circular
 router.put('/:circularid' , (req,res) => {
-      Circular.findOne({_id:req.params.circularid})
+      Circular.findOne({circular_id:req.params.circularid})
       .then((circular) => {
         circular.institute_id=req.body.institute_id,
         circular.title=req.body.title,
@@ -420,7 +421,8 @@ router.put('/:circularid' , (req,res) => {
         circular.startDate=req.body.startDate,
         circular.endDate=req.body.endDate,
         circular.chapterDescription=req.body.desc,
-        circular.color=req.body.color
+        circular.color=req.body.color,
+        circular.circular_id = req.body.circular_id
         circular.save()
         .then(editedcircular => res.status(200).json(editedcircular))
         .catch(err => res.status(400).json(err))

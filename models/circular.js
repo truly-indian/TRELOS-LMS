@@ -25,6 +25,9 @@ const circularSchema = new Schema({
    },
    color:{
        type:String
+   },
+   circular_id:{
+       type:String
    }
    
 })

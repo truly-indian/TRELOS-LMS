@@ -15,7 +15,7 @@ router.get('/',(req,res)=> {
     res.status(200).json('This is the student page')
 }) 
 
-router.get('/courses' , (req,res)=> {
+router.get('/courses/:institute_id/:class' , (req,res)=> {
     Course.find().then((courses)=> {
         res.status(200).json(courses)
     }).catch((err)=> {
